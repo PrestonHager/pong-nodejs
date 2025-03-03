@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pong Game</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="score-display">
+            <div id="player1-score">Player 1: <span class="score">0</span></div>
+            <div id="player2-score">Player 2: <span class="score">0</span></div>
+        </div>
+
+        <div id="game-container">
+            <canvas id="game-canvas" width="640" height="480"></canvas>
+        </div>
+
+        <div class="controls">
+            <button id="start-button">Start Game</button>
+            <button id="reset-button">Reset</button>
+        </div>
+
+        <div class="instructions">
+            <p>Player: Use W (up) and S (down) keys</p>
+        </div>
+    </div>
+
+    <script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
+    <script>
+      const gameId = '<%= gameId %>';
+    </script>
+    <script src="/js/pong.js"></script>
+</body>
+</html>
