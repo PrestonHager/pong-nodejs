@@ -3,10 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
     <title>Pong Game</title>
     <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
+    <div id="win-alert" class="alert" hidden>
+        <div class="alert-content">
+            <h2>Game Over</h2>
+            <p id="winner-message"></p>
+            <button id="play-again-button">Play Again</button>
+        </div>
+    </div>
+    <div id="error-alert" class="alert error" hidden>
+        <div class="alert-content">
+            <h2>Error</h2>
+            <p id="error-message"></p>
+            <button id="back-button">
+                <a href="/">Back to Home</a>
+            </button>
+        </div>
+    </div>
     <div class="container">
         <div class="score-display">
             <div id="player1-score">Player 1: <span class="score">0</span></div>

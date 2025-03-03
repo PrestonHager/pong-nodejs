@@ -6,6 +6,7 @@ const socket = io({
 
 const startButton = document.getElementById('start-button');
 const resetButton = document.getElementById('reset-button');
+const playAgainButton = document.getElementById('play-again-button');
 
 const canvas = document.getElementById('game-canvas');
 const context = canvas.getContext('2d');
@@ -17,6 +18,8 @@ const paddleHeight = 100;
 const ballSize = 10;
 const playerSpeed = 5;
 const ballSpeed = 5;
+
+const playUntil = 10;
 
 const MOVE_NONE = 0;
 const MOVE_UP = -1;
@@ -63,6 +66,16 @@ function drawBall(x, y, size, color) {
 }
 
 startButton.addEventListener('click', () => {
+  // start the game
+  resetBall();
+  socket.emit('startGame', {
+    gameId: gameId,
+  });
+});
+playAgainButton.addEventListener('click', () => {
+  // hide alert
+  const winAlert = document.getElementById('win-alert');
+  winAlert.style.visibility = 'hidden';
   // start the game
   resetBall();
   socket.emit('startGame', {
@@ -151,8 +164,8 @@ function update() {
       gameId: gameId,
       player: 'player1',
     });
-    updateScore('player1');
     resetBall();
+    updateScore('player1');
   }
   if (ball.x + ball.size >= width) {
     // emit to socket
@@ -160,16 +173,23 @@ function update() {
       gameId: gameId,
       player: 'player2',
     });
-    updateScore('player2');
     resetBall();
+    updateScore('player2');
   }
 }
 
 function resetBall() {
   ball.x = width / 2 - ball.size / 2;
   ball.y = height / 2 - ball.size / 2;
-  // direction is random
-  const angle = Math.random() * Math.PI * 2;
+  // direction is random between either 45 and 135 degrees or 225 and 315
+  // degrees
+  let angle = Math.random() * Math.PI;
+  // add either 45 or 135 degrees to the angle depending on angle
+  if (angle < Math.PI / 2) {
+    angle += Math.PI / 4;
+  } else {
+    angle += 3 * Math.PI / 4;
+  }
   ball.dx = ballSpeed * Math.cos(angle);
   ball.dy = ballSpeed * Math.sin(angle);
   // tell socket to reset ball
@@ -203,9 +223,37 @@ function updateScore(who) {
   const opponentScoreElement = opponentScoreDiv.querySelector('span');
   playerScoreElement.innerText = playerScore;
   opponentScoreElement.innerText = opponentScore;
+  // check if someone won
+  if (playerScore >= playUntil) {
+    winGame('player1');
+  } else if (opponentScore >= playUntil) {
+    winGame('player2');
+  }
+}
+
+function winGame(who) {
+  resetGame();
+  // emit a reset game event
+  socket.emit('resetGame', {
+    gameId: gameId,
+  });
+  // show win message
+  const winAlert = document.getElementById('win-alert');
+  const winMessage = document.getElementById('winner-message');
+  winMessage.innerText = who === 'player1' ? 'Player 1 wins!' : 'Player 2 wins!';
+  winAlert.style.visibility = 'visible';
 }
 
 // socket.io events
+socket.on('roomFull', (data) => {
+  console.log(data);
+  const errorDiv = document.getElementById('error-alert');
+  const errorMessage = document.getElementById('error-message');
+  errorMessage.innerText = data;
+  errorDiv.style.visibility = 'visible';
+});
+
+// listen for key events from the other player
 socket.on('keyDown', (data) => {
   if (data.key === 'w') {
     opponent.move = MOVE_UP;
@@ -224,6 +272,9 @@ socket.on('keyUp', (data) => {
 });
 
 socket.on('startGame', (data) => {
+  // ensure win alert is hidden
+  const winAlert = document.getElementById('win-alert');
+  winAlert.style.visibility = 'hidden';
 });
 
 socket.on('resetGame', (data) => {

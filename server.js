@@ -2,7 +2,6 @@
 
 // import libraries
 const express = require('express');
-const cookieSession = require('cookie-session');
 const { createServer } = require('http');
 const { Server } = require('socket.io');
 
@@ -16,14 +15,21 @@ const io = new Server(server);
 app.engine('html', require('ejs').renderFile);
 app.set('view engine', 'html');
 
-// setup cookie authentication
-app.use(cookieSession({
-  secret: 'my-secret',
-}));
-
 // index route
 app.get('/', (req, res) => {
-  res.send(`Hello World!\nSession: ${JSON.stringify(req.session)}`);
+  // get a list of current games available to join
+  const rooms = io.of('/').adapter.rooms;
+  const games = [];
+  for (const [key, value] of rooms.entries()) {
+    if (key.startsWith('game-') && value.size < 2) {
+      games.push({
+        id: key.split('-')[1],
+        url: `/game/${key.split('-')[1]}`,
+      });
+    }
+  }
+  // send the index.html file with the games list
+  res.render('index', { games: games });
 });
 
 // game route
@@ -37,6 +43,14 @@ app.get('/game/:gameId', (req, res) => {
 io.on('connection', (socket) => {
   // get the gameId from the socket connection query
   const gameId = socket.handshake.query.gameId;
+  // ensure room is not full
+  const room = io.of('/').adapter.rooms.get(`game-${gameId}`);
+  const numClients = room ? room.size : 0;
+  if (numClients >= 2) {
+    console.log(`User ${socket.id} tried to join game-${gameId}, but room is full`);
+    socket.emit('roomFull', 'The room is full, please try again later');
+    return;
+  }
   console.log(`User connected ${socket.id} to game-${gameId}`);
   socket.join(`game-${gameId}`);
 

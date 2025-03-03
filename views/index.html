@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <title>Pong Game</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div id="error-alert" class="alert error" hidden>
+        <div class="alert-content">
+            <h2>Error</h2>
+            <p id="error-message"></p>
+        </div>
+    </div>
+    <div class="container">
+        <h1>Pong Game</h1>
+        <p>
+            Welcome to the Pong Game!<br>
+            Create a new game or join an existing one.
+        </p>
+        <div class="controls">
+            <button id="new-game-button">New Game</button>
+        </div>
+        <div class="games-list">
+            <h2>Available Games</h2>
+            <ul id="games-list">
+                <% games.forEach(game => { %>
+                    <li>
+                        <a href="<%= game.url %>">Game <%= game.id %></a>
+                    </li>
+                <% }) %>
+            </ul>
+      </div>
+    </div>
+
+    <script src="/js/index.js"></script>
+</body>
+</html>
+
